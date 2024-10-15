@@ -52,6 +52,8 @@ const CardGamePage: React.FC = () => {
     const [scoreLimit, setScoreLimit] = useState<number>(5);
     const [gameOver, setGameOver] = useState(false);
     const [hasSubmitted, setHasSubmitted] = useState(false);
+    // Add this state variable
+    const [hasSelectedWinner, setHasSelectedWinner] = useState(false);
 
     useEffect(() => {
         const newSocket = io();
@@ -125,6 +127,7 @@ const CardGamePage: React.FC = () => {
             setSubmittedCards([]);
             setSelectedCards([]);
             setHasSubmitted(false);
+            setHasSelectedWinner(false);
 
             const me = users.find((user: User) => user.id === newSocket.id);
             if (me) {
@@ -214,8 +217,14 @@ const CardGamePage: React.FC = () => {
         user: User;
         cards: { text: string }[];
     }) => {
-        if (socket && cardCzar?.id === socket.id) {
-            socket.emit('selectWinner', submission);
+        if (socket && cardCzar?.id === socket.id && !hasSelectedWinner) {
+            const confirmSelection = window.confirm(
+                'Are you sure you want to select this submission as the winner?'
+            );
+            if (confirmSelection) {
+                socket.emit('selectWinner', submission);
+                setHasSelectedWinner(true);
+            }
         }
     };
 
@@ -244,7 +253,7 @@ const CardGamePage: React.FC = () => {
                 {' '}
                 {/* Increase max width */}
                 <h1 className="text-3xl font-bold mb-4 text-center text-black">
-                    Card Game Lobby
+                    CardsClone
                 </h1>
                 {/* Nickname Input */}
                 <div className="mb-4">
@@ -257,7 +266,7 @@ const CardGamePage: React.FC = () => {
                     <input
                         id="nickname"
                         type="text"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
                         placeholder="Your Nickname"
                         value={nickname}
                         onChange={(e) => setNickname(e.target.value)}
@@ -360,10 +369,15 @@ const CardGamePage: React.FC = () => {
                         {users.map((user) => (
                             <div
                                 key={user.id}
-                                className="flex items-center justify-between bg-gray-200 p-2 rounded-lg shadow-sm text-black"
+                                className={`flex items-center justify-between p-2 rounded-lg shadow-sm text-black ${
+                                    user.id === cardCzar?.id
+                                        ? 'bg-yellow-200 font-bold'
+                                        : 'bg-gray-200'
+                                }`}
                             >
-                                <span className="font-semibold">
+                                <span>
                                     {user.nickname || 'Anonymous'}
+                                    {user.id === cardCzar?.id && ' (Card Czar)'}
                                 </span>
                                 <span className="text-sm">
                                     Points: {user.points}
@@ -373,8 +387,7 @@ const CardGamePage: React.FC = () => {
                     </div>
                     <p className="text-sm text-center mt-4 text-black">
                         Score Limit: {scoreLimit}
-                    </p>{' '}
-                    {/* Display the score limit */}
+                    </p>
                 </div>
                 {gameStarted && !gameOver && (
                     <div>
@@ -399,6 +412,7 @@ const CardGamePage: React.FC = () => {
                                                         socket &&
                                                         cardCzar?.id ===
                                                             socket.id &&
+                                                        !hasSelectedWinner &&
                                                         handleSelectWinner({
                                                             user,
                                                             cards,
@@ -407,7 +421,8 @@ const CardGamePage: React.FC = () => {
                                                     className={`bg-white text-black p-4 rounded-lg shadow-md ${
                                                         socket &&
                                                         cardCzar?.id ===
-                                                            socket.id
+                                                            socket.id &&
+                                                        !hasSelectedWinner
                                                             ? 'cursor-pointer'
                                                             : ''
                                                     } ${

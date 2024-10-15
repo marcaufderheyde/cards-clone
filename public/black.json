@@ -362,7 +362,7 @@
     {
         "colour": "Black",
         "text": "And the Academy Award for _____ goes to _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -376,7 +376,7 @@
     },
     {
         "colour": "Black",
-        "text": "Brought to you by Bud Light®, the Official Beer of _____.",
+        "text": "Brought to you by Bud Light\u00ae, the Official Beer of _____.",
         "blanks": 1
     },
     {
@@ -422,7 +422,7 @@
     {
         "colour": "Black",
         "text": "For my next trick, I will pull _____ out of _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -472,7 +472,7 @@
     {
         "colour": "Black",
         "text": "I never truly understood _____ until I encountered _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -507,7 +507,7 @@
     {
         "colour": "Black",
         "text": "In Jordan Peele's new thriller, a young family discovers that _______ had really been _______ all along.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -522,7 +522,7 @@
     {
         "colour": "Black",
         "text": "Introducing the amazing superhero/sidekick duo! It's _____ and _____!",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -556,8 +556,8 @@
     },
     {
         "colour": "Black",
-        "text": "Lifetime® presents \"_____: the Story of _____.\"",
-        "blanks": 1
+        "text": "Lifetime\u00ae presents \"_____: the Story of _____.\"",
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -612,12 +612,12 @@
     {
         "colour": "Black",
         "text": "Step 1: _____. Step 2: _____. Step 3: Profit.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
         "text": "That's right, I killed _____. How, you ask? _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -632,7 +632,7 @@
     {
         "colour": "Black",
         "text": "They said we were crazy. They said we couldn't put _____ inside of _____. They were wrong.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -762,7 +762,7 @@
     {
         "colour": "Black",
         "text": "When I was tripping on acid, _____ turned into _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -796,7 +796,7 @@
     },
     {
         "colour": "Black",
-        "text": "✮✩✩✩✩ Do NOT go here! Found _____ in my fettuccine alfredo!",
+        "text": "\u272e\u2729\u2729\u2729\u2729 Do NOT go here! Found _____ in my fettuccine alfredo!",
         "blanks": 1
     },
     {
@@ -887,12 +887,12 @@
     {
         "colour": "Black",
         "text": "_____ be all like _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
         "text": "_____: Brought to you by _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -921,7 +921,7 @@
     },
     {
         "colour": "Black",
-        "text": "Coming to Red Lobster® this month, _____.",
+        "text": "Coming to Red Lobster\u00ae this month, _____.",
         "blanks": 1
     },
     {
@@ -1006,7 +1006,7 @@
     },
     {
         "colour": "Black",
-        "text": "Mom's to-do list: • Buy groceries • Clean up _____ • Soccer practice",
+        "text": "Mom's to-do list: \u2022 Buy groceries \u2022 Clean up _____ \u2022 Soccer practice",
         "blanks": 1
     },
     {
@@ -1202,7 +1202,7 @@
     {
         "colour": "Black",
         "text": "_____ would be woefully incomplete without _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1212,7 +1212,7 @@
     {
         "colour": "Black",
         "text": "_____: Hours of fun. Easy to use. Perfect for _____!",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1227,7 +1227,7 @@
     {
         "colour": "Black",
         "text": "After months of practice with _____, I think I'm finally ready for _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1252,7 +1252,7 @@
     {
         "colour": "Black",
         "text": "Before _____, all we had was _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1267,7 +1267,7 @@
     {
         "colour": "Black",
         "text": "Dear Sir or Madam, We regret to inform you that the Office of _____ has denied your request for _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1297,7 +1297,7 @@
     {
         "colour": "Black",
         "text": "Having problems with _____? Try _____!",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1311,18 +1311,18 @@
     },
     {
         "colour": "Black",
-        "text": "I love being a mom. But it's tough when my kids come home filthy from _____. That's why there's Tide.®",
+        "text": "I love being a mom. But it's tough when my kids come home filthy from _____. That's why there's Tide.\u00ae",
         "blanks": 1
     },
     {
         "colour": "Black",
         "text": "I spent my whole life working toward _____, only to have it ruined by _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
         "text": "I went from _____ to _____, all thanks to _____.",
-        "blanks": 1
+        "blanks": 3
     },
     {
         "colour": "Black",
@@ -1332,12 +1332,12 @@
     {
         "colour": "Black",
         "text": "If God didn't want us to enjoy _____, he wouldn't have given us _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
         "text": "In a pinch, _____ can be a suitable substitute for _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1372,7 +1372,7 @@
     {
         "colour": "Black",
         "text": "Listen, son. If you want to get involved with _____, I won't stop you. Just steer clear of _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1392,7 +1392,7 @@
     {
         "colour": "Black",
         "text": "Michael Bay's new three-hour action epic pits _____ against _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1412,12 +1412,12 @@
     {
         "colour": "Black",
         "text": "My life is ruled by a vicious cycle of _____ and _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
         "text": "My mom freaked out when she looked at my browser history and found _____.com/_____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1496,7 +1496,7 @@
     },
     {
         "colour": "Black",
-        "text": "Welcome to Señor Frog's! Would you like to try our signature cocktail, \"_____ on the Beach\"?",
+        "text": "Welcome to Se\u00f1or Frog's! Would you like to try our signature cocktail, \"_____ on the Beach\"?",
         "blanks": 1
     },
     {
@@ -1532,17 +1532,17 @@
     {
         "colour": "Black",
         "text": "When you get right down to it, _____ is just _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
         "text": "With enough time and pressure, _____ will turn into _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
         "text": "You haven't truly lived until you've experienced _____ and _____ at the same time.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1612,12 +1612,12 @@
     {
         "colour": "Black",
         "text": "In an attempt to recreate conditions just after the Big Bang, physicists at the LHC are observing collisions between _____ and _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
         "text": "In line with our predictions, we find a robust correlation between _____ and _____ (p<.05).",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1627,7 +1627,7 @@
     {
         "colour": "Black",
         "text": "Today on Mythbusters, we find out how long _____ can withstand _____.",
-        "blanks": 1
+        "blanks": 2
     },
     {
         "colour": "Black",
@@ -1751,6 +1751,7 @@
     },
     {
         "colour": "Black",
-        "text": "You know what's, like, really funny when you think about it? _____."
+        "text": "You know what's, like, really funny when you think about it? _____.",
+        "blanks": 1
     }
 ]

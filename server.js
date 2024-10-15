@@ -24,6 +24,7 @@ let cardCzarOrder = [];
 let currentCardCzarIndex = 0;
 let submissions = [];
 let SCORE_LIMIT = 3;
+let winnerSelected = false;
 
 app.prepare().then(() => {
     const server = express();
@@ -124,6 +125,13 @@ app.prepare().then(() => {
         });
 
         socket.on('selectWinner', (winningSubmission) => {
+            if (
+                socket.id !== cardCzarOrder[currentCardCzarIndex].id ||
+                winnerSelected
+            ) {
+                return; // Prevent non-card czar or multiple selections
+            }
+            winnerSelected = true; // Set the flag to true
             const submission = submissions.find(
                 (sub) => sub.user.id === winningSubmission.user.id
             );
@@ -209,6 +217,7 @@ function startNextRound(io) {
     currentCardCzarIndex = (currentCardCzarIndex + 1) % cardCzarOrder.length;
     const newCardCzar = cardCzarOrder[currentCardCzarIndex];
     submissions = [];
+    winnerSelected = false; // Reset the flag
 
     io.emit('nextRound', {
         blackCard: getRandomCard(blackCardsDeck),
@@ -226,7 +235,8 @@ function resetGame(io) {
     adminSet = false;
     submissions = [];
     currentCardCzarIndex = 0;
-    io.emit('updateUserList', connectedUsers); // Emit updated user list
+    winnerSelected = false; // Reset the flag
+    io.emit('updateUserList', connectedUsers);
 }
 
 function startNewGame(io) {
