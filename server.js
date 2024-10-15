@@ -3,6 +3,7 @@ const { createServer } = require('http');
 const next = require('next');
 const express = require('express');
 const { Server } = require('socket.io');
+const port = process.env.PORT || 3000;
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
