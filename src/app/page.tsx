@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import io from 'socket.io-client';
+import { DefaultEventsMap } from 'socket.io';
+import io, { Socket } from 'socket.io-client';
 
 interface GameSettings {
     pointsToWin: number;
@@ -25,7 +26,8 @@ interface WhiteCard {
 }
 
 const CardGamePage: React.FC = () => {
-    const [socket, setSocket] = useState<any>(null);
+    const [socket, setSocket] =
+        useState<Socket<DefaultEventsMap, DefaultEventsMap>>();
     const [nickname, setNickname] = useState('');
     const [gameSettings, setGameSettings] = useState<GameSettings>({
         pointsToWin: 5,
@@ -154,7 +156,7 @@ const CardGamePage: React.FC = () => {
     }, []);
 
     const handleSelectCard = (card: WhiteCard) => {
-        if (cardCzar?.id !== socket.id && !hasSubmitted) {
+        if (socket && cardCzar?.id !== socket.id && !hasSubmitted) {
             if (selectedCards.some((c) => c.text === card.text)) {
                 setSelectedCards(
                     selectedCards.filter((c) => c.text !== card.text)
@@ -394,6 +396,7 @@ const CardGamePage: React.FC = () => {
                                                 <div
                                                     key={index}
                                                     onClick={() =>
+                                                        socket &&
                                                         cardCzar?.id ===
                                                             socket.id &&
                                                         handleSelectWinner({
@@ -402,8 +405,9 @@ const CardGamePage: React.FC = () => {
                                                         })
                                                     }
                                                     className={`bg-white text-black p-4 rounded-lg shadow-md ${
+                                                        socket &&
                                                         cardCzar?.id ===
-                                                        socket.id
+                                                            socket.id
                                                             ? 'cursor-pointer'
                                                             : ''
                                                     } ${
@@ -453,6 +457,7 @@ const CardGamePage: React.FC = () => {
                                         }
                                         className={`bg-white text-black text-center p-2 rounded-lg shadow-md ${
                                             !hasSubmitted &&
+                                            socket &&
                                             cardCzar?.id !== socket.id
                                                 ? 'cursor-pointer'
                                                 : 'cursor-not-allowed'
@@ -461,7 +466,8 @@ const CardGamePage: React.FC = () => {
                                                 ? 'border-2 border-green-500'
                                                 : ''
                                         } ${
-                                            cardCzar?.id === socket.id ||
+                                            (socket &&
+                                                cardCzar?.id === socket.id) ||
                                             hasSubmitted
                                                 ? 'opacity-50'
                                                 : ''
@@ -479,6 +485,7 @@ const CardGamePage: React.FC = () => {
 
                         {/* Submit Button */}
                         {selectedCards.length === (blackCard?.blanks || 1) &&
+                            socket &&
                             cardCzar?.id !== socket.id &&
                             !hasSubmitted && (
                                 <div className="flex justify-center mt-4">
