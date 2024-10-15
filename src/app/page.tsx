@@ -63,12 +63,19 @@ const CardGamePage: React.FC = () => {
             console.log('Connected to server with ID:', newSocket.id);
         });
 
+        newSocket.on('adminReset', () => {
+            setAdminSet(false);
+        });
+
         newSocket.on('updateUserList', (updatedUsers: User[]) => {
             setUsers(updatedUsers);
         });
 
         newSocket.on('updateHost', (hostId: string) => {
             setHost(hostId);
+            if (hostId !== newSocket.id) {
+                setAdminSet(false); // Reset adminSet if you're not the host
+            }
         });
 
         newSocket.on('adminSet', () => {

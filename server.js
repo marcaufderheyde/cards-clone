@@ -178,8 +178,12 @@ app.prepare().then(() => {
 
             if (connectedUsers.length === 0) {
                 host = null;
+                adminSet = false;
+                io.emit('adminReset');
             } else if (socket.id === host) {
                 host = connectedUsers[0].id;
+                adminSet = false;
+                io.emit('adminReset');
             }
 
             io.emit('updateUserList', connectedUsers);
@@ -235,8 +239,9 @@ function resetGame(io) {
     adminSet = false;
     submissions = [];
     currentCardCzarIndex = 0;
-    winnerSelected = false; // Reset the flag
+    winnerSelected = false;
     io.emit('updateUserList', connectedUsers);
+    io.emit('adminReset');
 }
 
 function startNewGame(io) {
