@@ -54,7 +54,7 @@ const CardGamePage: React.FC = () => {
     const [hasSubmitted, setHasSubmitted] = useState(false);
 
     useEffect(() => {
-        const newSocket = io('http://localhost:3000');
+        const newSocket = io();
         setSocket(newSocket);
 
         newSocket.on('connect', () => {
