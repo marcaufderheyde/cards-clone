@@ -1,0 +1,34 @@
+White	A dick so big and so black that not even light can escape its pull.	RJCT2		
+White	A double murder suicide barbeque.	RJCT2		
+White	A primordial soup and salad bar.	RJCT2		
+White	A stack of bunnies in a trenchcoat.	RJCT2		
+Black	America is hungry. America needs ____.	RJCT2	0	1
+Black	Astronomers have discovered that the universe consists of 5% ordinary matter, 25% dark matter, and 70% ____.	RJCT2	0	1
+White	At least three ducks.	RJCT2		
+White	Becoming engorged with social justice jelly and secreting a thinkpiece.	RJCT2		
+White	Being the absolute worst.	RJCT2		
+Black	BowWOW! is the first pet hotel in LA that offers ____ for dogs.	RJCT2	0	1
+White	Disco Mussolini.	RJCT2		
+White	Greg Kinnear's terrible lightning breath.	RJCT2		
+Black	Hey, whatever happened to Renee Zellweger?	RJCT2	0	1
+Black	Housekeeping! You want ____?	RJCT2	0	1
+Black	In bourgeois society, capital is independent and has individuality, while the living person is ____.	RJCT2	0	1
+White	Mitt Romney's eight sons Kip, Sam, Trot, Fergis, Toolshed, Grisham, Hawkeye, and Thorp.	RJCT2		
+White	Mr. and Mrs. Tambourine Man's jingle-jangle morning sex.	RJCT2		
+White	Mushy tushy.	RJCT2		
+White	Ringo Starr & His All-Starr Band.	RJCT2		
+White	Sandwich.	RJCT2		
+White	Saving the Rainforest Cafe.	RJCT2		
+White	Sir Thomas More's Fruitopia.™	RJCT2		
+Black	Some men aren't looking for anything logical, like money. They can't be bought, bullied, reasoned, or negotiated with. Some men just want ____.	RJCT2	0	1
+White	Sweating it out on the streets of a runaway American Dream.	RJCT2		
+White	That one leftover screw.	RJCT2		
+White	That thing politicians do with their thumbs when they talk.	RJCT2		
+White	The spooky skeleton under my skin.	RJCT2		
+White	The token lesbian.	RJCT2		
+White	These dolphins.	RJCT2		
+White	Three hairs from the silver-golden head of Galadriel.	RJCT2		
+White	Water so cold it turned into a rock.	RJCT2		
+Black	What's wrong with these gorillas?	RJCT2	0	1
+Black	Why did the chicken cross the road?	RJCT2	0	1
+Black	You say tomato, I say ____.	RJCT2	0	1

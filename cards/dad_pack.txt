@@ -1,0 +1,30 @@
+White	A positive male role model.	DAD		
+White	Coaching the 7th grade girls basketball team.	DAD		
+Black	Coming up on Turner Classic Movies: Sean Connery and Alec Baldwin star in "The Hunt for _____."	DAD	0	1
+White	Dad coming home drunk.	DAD		
+White	Dad's big sex night.	DAD		
+White	Dad's famous chili.	DAD		
+White	Divorce.	DAD		
+White	Emotional unavailability.	DAD		
+White	Finding a place to sit down.	DAD		
+White	Flirting with the ladies at the bank.	DAD		
+White	Forty-two years of repressed homosexuality.	DAD		
+White	Going bald.	DAD		
+White	Having a heart attack.	DAD		
+Black	Hey, kids. I'm Connor's dad, but you can call me Mr. _____.	DAD	0	1
+White	Kidnapping Liam Neeson's daughter.	DAD		
+White	Low sperm motility.	DAD		
+White	Making the printer work.	DAD		
+White	Mulch.	DAD		
+White	My tired husband's soft penis.	DAD		
+White	Puns.	DAD		
+White	Sitting on the toilet for 45 minutes.	DAD		
+Black	So apparently Dad was searching Pornhub for "hot milf _____."	DAD	0	1
+White	Standing in the middle of the living room holding two remote controls.	DAD		
+White	Stealing a child's nose and keeping it forever.	DAD		
+White	The nipples of a man.	DAD		
+White	The son of a bitch who knocked up my daughter.	DAD		
+White	Tripping on an object and becoming angry.	DAD		
+Black	Whaddya think, money grows on trees? I'm not paying for _____!	DAD	0	1
+White	What Dad has to say about Muslims.	DAD		
+Black	Young lady, you better knock it off with _____ or you're grounded!	DAD	0	1

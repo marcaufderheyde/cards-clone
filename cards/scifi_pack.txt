@@ -1,0 +1,29 @@
+White	A hazmat suit full of farts.	SCIFI		
+White	A misty room full of glistening egg sacs.	SCIFI		
+White	A planet-devouring space worm named Rachel.	SCIFI		
+White	A protagonist with no qualities.	SCIFI		
+White	An alternate history where Hitler was gay but he still killed all those people.	SCIFI		
+White	Beep beep boop beep boop.	SCIFI		
+White	Cheerful blowjob robots.	SCIFI		
+Black	Computer! Display _____ on screen. Enhance.	SCIFI	0	1
+White	Cosmic bowling.	SCIFI		
+White	Darmok and Jalad at Tanagra.	SCIFI		
+Black	Fear leads to anger. Anger leads to hate. Hate leads to _____.	SCIFI	0	1
+White	Frantically writing equations on a chalkboard.	SCIFI		
+White	Funkified aliens from the planet Groovius.	SCIFI		
+White	Going too far with science and bad things happening.	SCIFI		
+White	How great of a movie Men in Black was.	SCIFI		
+White	Laying thousands of eggs in a man's colon.	SCIFI		
+Black	Madam President, the asteroid is headed directly for Earth and there's only one thing that can stop it: _____.	SCIFI	0	1
+White	Masturbating Yoda's leathery turtle-penis.	SCIFI		
+White	Nine seasons of sexual tension with David Duchovny.	SCIFI		
+White	That girl from the Hungry Games.	SCIFI		
+White	The dystopia we're living in right now.	SCIFI		
+White	The ending of Lost.	SCIFI		
+Black	This won't be like negotiating with the Vogons. Humans only respond to one thing: _____.	SCIFI	0	1
+White	Three boobs.	SCIFI		
+White	Trimming the poop out of Chewbacca's butt hair.	SCIFI		
+White	Vulcan sex-madness.	SCIFI		
+Black	What is the answer to life, the universe, and everything?	SCIFI	0	1
+Black	You have violated the Prime Directive! You exposed an alien culture to _____ before they were ready.	SCIFI	0	1
+Black	You're not going to believe this, but I'm you from the future! You've got to stop _____.	SCIFI	0	1

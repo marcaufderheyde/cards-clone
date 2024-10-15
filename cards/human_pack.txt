@@ -1,0 +1,30 @@
+White	A pointless job at a soulless corporation.	HUMAN		
+White	Being terrified of a single bee.	HUMAN		
+White	Being young and in love in New York City.	HUMAN		
+White	Chemotherapy.	HUMAN		
+White	Delighting in the pain of others.	HUMAN		
+Black	Do not go gentle into that good night. Rage, rage against _____.	HUMAN	1	1
+White	Forming a monogamous pairbond.	HUMAN		
+White	Getting my butt trapped hilariously in a tuba.	HUMAN		
+White	Getting sad for no reason.	HUMAN		
+White	Good ol' fashioned face-to-face conversation.	HUMAN		
+White	Harnessing the power of steam!!!	HUMAN		
+White	How good this cantaloupe feels on my penis.	HUMAN		
+White	Just hangin' out, ya know?	HUMAN		
+White	Like 50 mosquito bites.	HUMAN		
+White	Losing a loved one to Fox News.	HUMAN		
+White	Really tall people.	HUMAN		
+White	Saying "What's that?" and then stealing a french fry.	HUMAN		
+White	Sucking all the oil out of the planet and fucking off to Mars.	HUMAN		
+Black	Sure, sex is great, but have you tried _____?	HUMAN	1	1
+White	The bomb strapped to my chest.	HUMAN		
+White	The joy of song.	HUMAN		
+White	The salmon.	HUMAN		
+White	The unspeakable horrors of factory farming.	HUMAN		
+White	The whole Jeffrey Epstein thing.	HUMAN		
+White	This horrible thing called Twitter.	HUMAN		
+White	Three hours of pimple-popping videos.	HUMAN		
+White	Unwelcome sexual attention from grown men.	HUMAN		
+White	Using words to communicate.	HUMAN		
+White	War with China.	HUMAN		
+White	Watching the life drain from the eyes of my son's killer.	HUMAN	

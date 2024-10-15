@@ -1,0 +1,30 @@
+White	A belly full of hard-boiled eggs.	FOOD		
+White	A joyless vegan patty.	FOOD		
+White	A sobering quantity of chili cheese fries.	FOOD		
+White	A table for one at The Cheesecake Factory.	FOOD		
+Black	Aw babe, your burps smell like _____!	FOOD	0	1
+White	Being emotionally and physically dominated by Gordon Ramsay.	FOOD		
+White	Clamping down on a gazelle's jugular and tasting its warm life waters.	FOOD		
+White	Committing suicide at the Old Country Buffet.	FOOD		
+Black	Don't miss Rachel Ray's hit new show, Cooking with _____.	FOOD	0	1
+Black	Excuse me, waiter. Could you take this back? This soup tastes like _____.	FOOD	0	1
+White	Father's forbidden chocolates.	FOOD		
+White	Going vegetarian and feeling so great all the time.	FOOD		
+Black	I'm Bobby Flay, and if you can't stand _____, get out of the kitchen!	FOOD	0	1
+Black	It's not delivery. It's _____.	FOOD	0	1
+White	Jizz Twinkies.	FOOD		
+White	Kale farts.	FOOD		
+White	Kevin Bacon Bits.	FOOD		
+White	Licking the cake batter off of grandma's fingers.	FOOD		
+White	Not knowing what to believe anymore about butter.	FOOD		
+Black	Now on Netflix: Jiro Dreams of _____.	FOOD	0	1
+White	Oreos for dinner.	FOOD		
+White	Real cheese flavor.	FOOD		
+White	Soup that's better than pussy.	FOOD		
+White	Sucking down thousands of pounds of krill every day.	FOOD		
+White	Swishing the wine around and sniffing it like a big fancy man.	FOOD		
+White	The $1 Beefy Fritos® Burrito from Taco Bell.	FOOD		
+White	The Hellman's Mayonnaise Corporation.	FOOD		
+White	The hot dog I put in my vagina ten days ago.	FOOD		
+White	The inaudible screams of carrots.	FOOD		
+White	What to do with all of this chocolate on my penis.	FOOD	

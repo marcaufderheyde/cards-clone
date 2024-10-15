@@ -1,0 +1,30 @@
+White	A bachelor's degree in communications.	COLEG		
+White	A girl who is so interesting that she has blue hair.	COLEG		
+White	A Yale man.	COLEG		
+Black	All classes today are canceled due to _____.	COLEG	0	1
+White	An emergency all-floor meeting on inclusion.	COLEG		
+White	Calling mom because it's just really hard and I miss her and I don't know anyone here.	COLEG		
+Black	Did you know? Our college was recently named the #1 school for _____!	COLEG	0	1
+White	Falling in love with poetry.	COLEG		
+White	Five morons signing a lease together.	COLEG		
+White	Fucking the beat boxer from the a cappella group.	COLEG		
+White	Going to college and becoming a new person, who has sex.	COLEG		
+White	Googling how to eat pussy.	COLEG		
+White	Horny Christian teens.	COLEG		
+Black	In this paper, I will explore _____ from a feminist perspective.	COLEG	0	1
+White	My high school boyfriend.	COLEG		
+Black	My memory of last night is pretty hazy. I remember _____ and that's pretty much it.	COLEG	0	1
+White	Performative wokeness.	COLEG		
+Black	Pledges! Time to prove you're Delta Phi material. Chug this beer, take off your shirts, and get ready for _____.	COLEG	0	1
+White	Pretending to have done the reading.	COLEG		
+White	Rocking a 1.5 GPA.	COLEG		
+White	Sucking a flaccid penis for 20 minutes.	COLEG		
+Black	The Department of Psychology is looking for paid research volunteers. Are you 18-25 and suffering from _____?	COLEG	0	1
+White	The sound of my roommate masturbating.	COLEG		
+White	Throw up.	COLEG		
+White	Uggs, leggings, and a North Face.	COLEG		
+White	Underage drinking.	COLEG		
+White	Valuable leadership experience.	COLEG		
+White	Wandering the streets in search of a party.	COLEG		
+White	Whichever one of you took a shit in the shower.	COLEG		
+White	Young Republicans.	COLEG	

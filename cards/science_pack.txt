@@ -1,0 +1,30 @@
+White	3.7 billion years of evolution.	SCI		
+White	A 0.7 waist-to-hip ratio.	SCI		
+Black	A study published in Nature this week found that _____ is good for you in small doses.	SCI	0	1
+White	A supermassive black hole.	SCI		
+White	Achieving reproductive success.	SCI		
+White	Being knowledgeable in a narrow domain that nobody understands or cares about.	SCI		
+White	David Attenborough watching us mate.	SCI		
+White	Developing secondary sex characteristics.	SCI		
+White	Driving into a tornado to learn about tornadoes.	SCI		
+White	Electroejaculating a capuchin monkey.	SCI		
+White	Evolving a labyrinthine vagina.	SCI		
+White	Explosive decompression.	SCI		
+White	Failing the Turing test.	SCI		
+White	Fun and interesting facts about rocks.	SCI		
+White	Getting really worried about global warming for a few seconds.	SCI		
+Black	Hey there, Young Scientists! Put on your labcoats and strap on your safety goggles, because today we're learning about _____!	SCI	0	1
+Black	In an attempt to recreate conditions just after the Big Bang, physicists at the LHC are observing collisions between _____ and _____.	SCI	0	2
+Black	In line with our predictions, we find a robust correlation between _____ and _____ (p<.05).	SCI	0	2
+Black	In what's being hailed as a major breakthrough, scientists have synthesized _____ in the lab.	SCI	0	1
+White	Infinity.	SCI		
+White	Insufficient serotonin.	SCI		
+White	Oxytocin release via manual stimulation of the nipples.	SCI		
+White	Photosynthesis.	SCI		
+White	Reconciling quantum theory with general relativity.	SCI		
+White	Slowly evaporating.	SCI		
+White	The quiet majesty of the sea turtle.	SCI		
+White	The Sun engulfing the Earth.	SCI		
+Black	Today on Mythbusters, we find out how long _____ can withstand _____.	SCI	0	2
+White	Uranus.	SCI		
+Black	What really killed the dinosaurs?	SCI	0	1

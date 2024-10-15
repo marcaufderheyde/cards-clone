@@ -1,0 +1,27 @@
+[
+    {
+        "colour": "Black",
+        "text": "Goodbye _____, hello _____!",
+        "blanks": 2
+    },
+    {
+        "colour": "Black",
+        "text": "Ladies and gentlemen, I propose a two-pronged plan. The first prong will be _____, and the second prong will be _____.",
+        "blanks": 2
+    },
+    {
+        "colour": "Black",
+        "text": "Live from Universal Studios, it's America's favorite game show! \"_____ or _____?\"",
+        "blanks": 2
+    },
+    {
+        "colour": "Black",
+        "text": "The sequel is here! Get ready for _____ 2: _____.",
+        "blanks": 2
+    },
+    {
+        "colour": "Black",
+        "text": "_____ is a slippery slope that leads to _____.",
+        "blanks": 2
+    }
+]
