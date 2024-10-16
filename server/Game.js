@@ -272,7 +272,13 @@ class Game {
 
     startNewRound(socket, newScoreLimit) {
         if (socket.id === this.host) {
-            this.SCORE_LIMIT = newScoreLimit;
+            if (newScoreLimit) {
+                this.SCORE_LIMIT = newScoreLimit;
+                console.log(`New score limit set to: ${this.SCORE_LIMIT}`);
+                this.io
+                    .to(this.lobbyId)
+                    .emit(EVENTS.UPDATE_SCORE_LIMIT, this.SCORE_LIMIT);
+            }
             this.resetGame();
             this.startNewGame();
         }

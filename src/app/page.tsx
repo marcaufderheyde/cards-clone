@@ -414,6 +414,7 @@ const CardGamePage: React.FC = () => {
                                 handleStartNewRound={handleStartNewRound}
                                 gameSettings={gameSettings}
                                 setGameSettings={setGameSettings}
+                                lobbyId={lobbyId}
                             />
                             <Leaderboard
                                 users={users}

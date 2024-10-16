@@ -15,6 +15,7 @@ interface AdminControlsProps {
     handleStartNewRound: () => void;
     gameSettings: GameSettings;
     setGameSettings: React.Dispatch<React.SetStateAction<GameSettings>>;
+    lobbyId: string | null;
 }
 
 const AdminControls: React.FC<AdminControlsProps> = ({
@@ -30,7 +31,22 @@ const AdminControls: React.FC<AdminControlsProps> = ({
     handleStartNewRound,
     gameSettings,
     setGameSettings,
+    lobbyId,
 }) => {
+    const handleScoreLimitChange = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const newLimit = parseInt(event.target.value, 10);
+        setGameSettings((prevSettings) => ({
+            ...prevSettings,
+            pointsToWin: newLimit,
+        }));
+
+        if (socket && host === socket.id && lobbyId) {
+            socket.emit('setScoreLimit', { newLimit, lobbyId });
+        }
+    };
+
     return (
         <>
             {socket?.id === host ? (
@@ -70,37 +86,16 @@ const AdminControls: React.FC<AdminControlsProps> = ({
                     )}
                 </div>
             ) : null}
-            {socket?.id === host && (!gameStarted || gameOver) && (
-                <div className="flex flex-col items-center mb-4">
-                    <label
-                        htmlFor="scoreLimit"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                        Set Score Limit
-                    </label>
+            {adminSet && !gameStarted && !gameOver && (
+                <div className="flex flex-col items-center mb-4 text-black">
+                    <label htmlFor="scoreLimit">Score Limit:</label>
                     <input
-                        id="scoreLimit"
                         type="number"
-                        className="mt-1 block w-20 text-center px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                        id="scoreLimit"
                         value={gameSettings.pointsToWin}
-                        onChange={(e) =>
-                            setGameSettings({
-                                ...gameSettings,
-                                pointsToWin: Number(e.target.value),
-                            })
-                        }
+                        onChange={handleScoreLimitChange}
+                        className="mt-1 block  border border-gray-300 rounded-md shadow-sm text-center"
                     />
-                    <button
-                        onClick={() =>
-                            socket.emit(
-                                'setScoreLimit',
-                                gameSettings.pointsToWin
-                            )
-                        }
-                        className="mt-4 px-4 py-2 font-semibold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"
-                    >
-                        Set Score Limit
-                    </button>
                 </div>
             )}
         </>
