@@ -14,6 +14,8 @@ interface GameBoardProps {
     allSubmissionsReceived: boolean;
     currentSubmissionsCount: number;
     expectedSubmissionsCount: number;
+    tentativeWinningSubmission: Submission | null;
+    confirmWinnerSelection: () => void;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -27,6 +29,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     allSubmissionsReceived,
     currentSubmissionsCount,
     expectedSubmissionsCount,
+    tentativeWinningSubmission,
+    confirmWinnerSelection,
 }) => {
     return (
         <div className="text-center text-lg font-semibold text-green-500 mb-4">
@@ -63,39 +67,56 @@ const GameBoard: React.FC<GameBoardProps> = ({
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-3 gap-4">
-                        {submittedCards.map(({ cards, user }, index) => (
-                            <div
-                                key={index}
-                                onClick={() =>
-                                    socket &&
-                                    cardCzar?.id === socket.id &&
-                                    !hasSelectedWinner &&
-                                    handleSelectWinner({
-                                        user,
-                                        cards,
-                                    })
-                                }
-                                className={`bg-white text-black p-4 rounded-lg shadow-md ${
-                                    socket &&
-                                    cardCzar?.id === socket.id &&
-                                    !hasSelectedWinner
-                                        ? 'cursor-pointer'
-                                        : ''
-                                } ${
-                                    winningSubmission &&
-                                    winningSubmission.user.id === user.id
-                                        ? 'border-2 border-yellow-500'
-                                        : ''
-                                }`}
-                            >
-                                {cards.map((card, idx) => (
-                                    <p key={idx} className="mb-2 last:mb-0">
-                                        {card.text}
-                                    </p>
-                                ))}
-                            </div>
-                        ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {submittedCards.map(({ cards, user }, index) => {
+                            const isTentativeSelection =
+                                tentativeWinningSubmission?.user.id === user.id;
+                            return (
+                                <div
+                                    key={index}
+                                    onClick={() =>
+                                        socket &&
+                                        cardCzar?.id === socket.id &&
+                                        !hasSelectedWinner &&
+                                        handleSelectWinner({
+                                            user,
+                                            cards,
+                                        })
+                                    }
+                                    className={`bg-white text-black p-4 rounded-lg shadow-md ${
+                                        socket &&
+                                        cardCzar?.id === socket.id &&
+                                        !hasSelectedWinner
+                                            ? 'cursor-pointer'
+                                            : ''
+                                    } ${
+                                        winningSubmission &&
+                                        winningSubmission.user.id === user.id
+                                            ? 'border-2 border-yellow-500'
+                                            : isTentativeSelection
+                                            ? 'border-2 border-blue-500'
+                                            : ''
+                                    }`}
+                                >
+                                    {cards.map((card, idx) => (
+                                        <p key={idx} className="mb-2 last:mb-0">
+                                            {card.text}
+                                        </p>
+                                    ))}
+                                </div>
+                            );
+                        })}
+                        {tentativeWinningSubmission &&
+                            cardCzar?.id === socket?.id && (
+                                <div className="mt-4">
+                                    <button
+                                        onClick={confirmWinnerSelection}
+                                        className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md"
+                                    >
+                                        Confirm Winner Selection
+                                    </button>
+                                </div>
+                            )}
                     </div>
                 )}
             </div>

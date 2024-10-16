@@ -22,7 +22,7 @@ const WhiteCardsHand: React.FC<WhiteCardsHandProps> = ({
     submissionTimeEnded,
 }) => {
     return (
-        <div className="grid grid-cols-5 gap-2 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-4">
             {myWhiteCards.map((card, index) => {
                 const isSelected = selectedCards.some(
                     (c) => c.text === card.text

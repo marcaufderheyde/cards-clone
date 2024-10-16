@@ -3,8 +3,10 @@ const { EVENTS } = require('./constants');
 const fs = require('fs');
 
 class Game {
-    constructor(io) {
-        this.io = io;
+    constructor(io, lobbyId) {
+        this.io = io; // Socket.IO server instance
+        this.lobbyId = lobbyId; // Lobby identifier
+
         this.connectedUsers = [];
         this.host = null;
         this.adminSet = false;
@@ -38,8 +40,10 @@ class Game {
             points: 0,
         });
 
-        this.io.emit(EVENTS.UPDATE_USER_LIST, this.connectedUsers);
-        this.io.emit(EVENTS.UPDATE_HOST, this.host);
+        this.io
+            .to(this.lobbyId)
+            .emit(EVENTS.UPDATE_USER_LIST, this.connectedUsers);
+        this.io.to(this.lobbyId).emit(EVENTS.UPDATE_HOST, this.host);
     }
 
     removeUser(socket) {
@@ -53,44 +57,47 @@ class Game {
         if (this.connectedUsers.length === 0) {
             this.host = null;
             this.adminSet = false;
-            this.io.emit(EVENTS.ADMIN_RESET);
+            this.io.to(this.lobbyId).emit(EVENTS.ADMIN_RESET);
         } else if (socket.id === this.host) {
             this.host = this.connectedUsers[0].id;
             this.adminSet = false;
-            this.io.emit(EVENTS.ADMIN_RESET);
-            this.io.emit(EVENTS.UPDATE_HOST, this.host);
+            this.io.to(this.lobbyId).emit(EVENTS.ADMIN_RESET);
+            this.io.to(this.lobbyId).emit(EVENTS.UPDATE_HOST, this.host);
         }
 
-        this.io.emit(EVENTS.UPDATE_USER_LIST, this.connectedUsers);
+        this.io
+            .to(this.lobbyId)
+            .emit(EVENTS.UPDATE_USER_LIST, this.connectedUsers);
     }
 
     setNickname(socket, nickname) {
         const user = this.connectedUsers.find((user) => user.id === socket.id);
         if (user) {
             user.nickname = nickname;
-            this.io.emit(EVENTS.UPDATE_USER_LIST, this.connectedUsers);
+            this.io
+                .to(this.lobbyId)
+                .emit(EVENTS.UPDATE_USER_LIST, this.connectedUsers);
         }
     }
 
     becomeAdmin(socket) {
         if (socket.id === this.host && !this.adminSet) {
             this.adminSet = true;
-            this.io.emit(EVENTS.ADMIN_SET);
+            this.io.to(this.lobbyId).emit(EVENTS.ADMIN_SET);
         }
     }
 
     handleSubmissionTimeout() {
-        // If all submissions have already been received, do nothing
         const expectedSubmissions = this.connectedUsers.length - 1; // Exclude Card Czar
         if (this.submissions.length >= expectedSubmissions) {
             return;
         }
 
         // Notify players that the submission time has ended
-        this.io.emit(EVENTS.SUBMISSION_TIME_ENDED);
+        this.io.to(this.lobbyId).emit(EVENTS.SUBMISSION_TIME_ENDED);
 
         // Proceed with the submissions received so far
-        this.io.emit(EVENTS.ALL_CARDS_SUBMITTED, {
+        this.io.to(this.lobbyId).emit(EVENTS.ALL_CARDS_SUBMITTED, {
             submissions: this.submissions,
         });
     }
@@ -116,7 +123,7 @@ class Game {
 
             const cardCzar = this.cardCzarOrder[this.currentCardCzarIndex];
 
-            this.io.emit(EVENTS.GAME_STARTED, {
+            this.io.to(this.lobbyId).emit(EVENTS.GAME_STARTED, {
                 blackCard: getRandomCard(this.blackCardsDeck),
                 users: this.connectedUsers,
                 cardCzar,
@@ -149,11 +156,17 @@ class Game {
             }
         });
 
-        this.submissions.push({ user, cards: submittedCards });
+        this.submissions.push({
+            user: {
+                id: user.id,
+                nickname: user.nickname,
+            },
+            cards: submittedCards,
+        });
 
         socket.emit(EVENTS.UPDATE_HAND, user.whiteCards);
 
-        this.io.emit(EVENTS.PLAYER_SUBMITTED_CARDS, {
+        this.io.to(this.lobbyId).emit(EVENTS.PLAYER_SUBMITTED_CARDS, {
             totalSubmissions: this.submissions.length,
             expectedSubmissions: this.connectedUsers.length - 1, // Exclude Card Czar
         });
@@ -161,13 +174,18 @@ class Game {
         const expectedSubmissions = this.connectedUsers.length - 1;
 
         if (this.submissions.length === expectedSubmissions) {
-            // All submissions received before timeout, clear the timer
             if (this.submissionTimer) {
                 clearTimeout(this.submissionTimer);
                 this.submissionTimer = null;
             }
-            this.io.emit(EVENTS.ALL_CARDS_SUBMITTED, {
-                submissions: this.submissions,
+
+            const sanitizedSubmissions = this.submissions.map((submission) => ({
+                user: submission.user, // Already sanitized
+                cards: submission.cards,
+            }));
+
+            this.io.to(this.lobbyId).emit(EVENTS.ALL_CARDS_SUBMITTED, {
+                submissions: sanitizedSubmissions,
             });
         }
     }
@@ -176,11 +194,26 @@ class Game {
         if (socket.id === this.host) {
             this.SCORE_LIMIT = newLimit;
             console.log(`New score limit set to: ${this.SCORE_LIMIT}`);
-            this.io.emit(EVENTS.UPDATE_SCORE_LIMIT, this.SCORE_LIMIT);
+            this.io
+                .to(this.lobbyId)
+                .emit(EVENTS.UPDATE_SCORE_LIMIT, this.SCORE_LIMIT);
         }
     }
 
     selectWinner(socket, winningSubmission) {
+        if (
+            !winningSubmission ||
+            !winningSubmission.user ||
+            !winningSubmission.user.id
+        ) {
+            console.error(
+                'Invalid winningSubmission received:',
+                winningSubmission
+            );
+            socket.emit(EVENTS.ERROR_MESSAGE, 'Invalid winning submission.');
+            return;
+        }
+
         if (
             socket.id !== this.cardCzarOrder[this.currentCardCzarIndex].id ||
             this.winnerSelected
@@ -188,9 +221,11 @@ class Game {
             return; // Prevent non-card czar or multiple selections
         }
         this.winnerSelected = true;
+
         const submission = this.submissions.find(
             (sub) => sub.user.id === winningSubmission.user.id
         );
+
         if (submission) {
             const winner = this.connectedUsers.find(
                 (user) => user.id === submission.user.id
@@ -202,10 +237,21 @@ class Game {
                     const topPlayers = this.connectedUsers
                         .sort((a, b) => b.points - a.points)
                         .slice(0, 3);
-                    this.io.emit(EVENTS.ANNOUNCE_TOP_PLAYERS, topPlayers);
+
+                    // Reset the cardCzar
+                    this.cardCzarOrder = [];
+                    this.currentCardCzarIndex = 0;
+                    this.winnerSelected = false;
+
+                    // Emit the top players along with the winner
+                    this.io.to(this.lobbyId).emit(EVENTS.ANNOUNCE_TOP_PLAYERS, {
+                        topPlayers,
+                        winner,
+                    });
+
                     this.resetGame();
                 } else {
-                    this.io.emit(EVENTS.WINNER_SELECTED, {
+                    this.io.to(this.lobbyId).emit(EVENTS.WINNER_SELECTED, {
                         winner,
                         winningSubmission,
                     });
@@ -217,7 +263,6 @@ class Game {
         }
 
         if (this.winnerSelected) {
-            // Clear the submission timer if it's still running
             if (this.submissionTimer) {
                 clearTimeout(this.submissionTimer);
                 this.submissionTimer = null;
@@ -240,7 +285,6 @@ class Game {
         this.submissions = [];
         this.winnerSelected = false;
 
-        // Start the submission timer
         if (this.submissionTimer) {
             clearTimeout(this.submissionTimer);
         }
@@ -248,7 +292,7 @@ class Game {
             this.handleSubmissionTimeout();
         }, this.SUBMISSION_TIME_LIMIT);
 
-        this.io.emit(EVENTS.NEXT_ROUND, {
+        this.io.to(this.lobbyId).emit(EVENTS.NEXT_ROUND, {
             blackCard: getRandomCard(this.blackCardsDeck),
             cardCzar: newCardCzar,
             users: this.connectedUsers,
@@ -258,7 +302,6 @@ class Game {
 
     resetGame() {
         this.connectedUsers.forEach((user) => {
-            user.points = 0;
             user.whiteCards = getRandomCards(this.whiteCardsDeck, 10);
         });
         this.gameStarted = false;
@@ -266,18 +309,22 @@ class Game {
         this.submissions = [];
         this.currentCardCzarIndex = 0;
         this.winnerSelected = false;
-        this.io.emit(EVENTS.UPDATE_USER_LIST, this.connectedUsers);
-        this.io.emit(EVENTS.ADMIN_RESET);
+        this.io
+            .to(this.lobbyId)
+            .emit(EVENTS.UPDATE_USER_LIST, this.connectedUsers);
+        this.io.to(this.lobbyId).emit(EVENTS.ADMIN_RESET);
     }
 
     startNewGame() {
+        this.connectedUsers.forEach((user) => {
+            user.points = 0;
+        });
         this.gameStarted = true;
         this.cardCzarOrder = shuffleArray([...this.connectedUsers]);
         this.currentCardCzarIndex = 0;
         this.submissions = [];
         const cardCzar = this.cardCzarOrder[this.currentCardCzarIndex];
 
-        // Start the submission timer
         if (this.submissionTimer) {
             clearTimeout(this.submissionTimer);
         }
@@ -285,7 +332,7 @@ class Game {
             this.handleSubmissionTimeout();
         }, this.SUBMISSION_TIME_LIMIT);
 
-        this.io.emit(EVENTS.GAME_STARTED, {
+        this.io.to(this.lobbyId).emit(EVENTS.GAME_STARTED, {
             blackCard: getRandomCard(this.blackCardsDeck),
             users: this.connectedUsers,
             cardCzar,

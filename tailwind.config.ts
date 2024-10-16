@@ -12,6 +12,15 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      animation: {
+        highlight: 'highlight 5s ease-in-out',
+    },
+    keyframes: {
+        highlight: {
+            '0%, 100%': { backgroundColor: '#ffff99' },
+            '50%': { backgroundColor: '#ffffff' },
+        },
+    },
     },
   },
   plugins: [],

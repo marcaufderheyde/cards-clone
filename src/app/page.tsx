@@ -9,10 +9,12 @@ import WhiteCardsHand from './components/WhiteCardsHand';
 import SubmitButton from './components/SubmitButton';
 import useSocket from './hooks/useSocket';
 import { GameSettings, User, WhiteCard, Submission } from '@/types';
+import LobbySelection from './components/LobbySelection';
 
 const CardGamePage: React.FC = () => {
     // Socket initialization
     const socket = useSocket();
+    const [lobbyId, setLobbyId] = useState<string | null>(null);
 
     // State variables
     const [nickname, setNickname] = useState('');
@@ -28,6 +30,8 @@ const CardGamePage: React.FC = () => {
         blanks: number;
     } | null>(null);
 
+    const [highlightLeaderboard, setHighlightLeaderboard] = useState(false);
+
     const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const [myWhiteCards, setMyWhiteCards] = useState<WhiteCard[]>([]);
@@ -40,9 +44,13 @@ const CardGamePage: React.FC = () => {
     const [expectedSubmissionsCount, setExpectedSubmissionsCount] = useState(0);
 
     const [allSubmissionsReceived, setAllSubmissionsReceived] = useState(false);
+    const [gameWinner, setGameWinner] = useState<User | null>(null);
 
     const [winningSubmission, setWinningSubmission] =
         useState<Submission | null>(null);
+    const [tentativeWinningSubmission, setTentativeWinningSubmission] =
+        useState<Submission | null>(null);
+
     const [scoreLimit, setScoreLimit] = useState<number>(5);
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
     const [submissionTimeEnded, setSubmissionTimeEnded] = useState(false);
@@ -52,8 +60,9 @@ const CardGamePage: React.FC = () => {
     const [hasSelectedWinner, setHasSelectedWinner] = useState(false);
 
     useEffect(() => {
-        if (!socket) return;
+        if (!socket || !lobbyId) return; // Ensure lobbyId is set
 
+        // Event listeners
         socket.on('connect', () => {
             console.log('Connected to server with ID:', socket.id);
         });
@@ -190,24 +199,33 @@ const CardGamePage: React.FC = () => {
             }
         );
 
-        socket.on('announceTopPlayers', (topPlayers: User[]) => {
-            const playerNames = topPlayers
-                .map(
-                    (player) =>
-                        `${player.nickname || 'Anonymous'}: ${
-                            player.points
-                        } points`
-                )
-                .join('\n');
-            setTimeout(() => {
-                alert(`Game Over! Top 3 Players:\n${playerNames}`);
-            }, 1000);
+        socket.on('announceTopPlayers', ({ topPlayers, winner }) => {
             setGameOver(true);
             setGameStarted(false);
             setSubmittedCards([]);
             setSelectedCards([]);
             setCurrentSubmissionsCount(0);
-            setExpectedSubmissionsCount(0); // Reset counts
+            setExpectedSubmissionsCount(0);
+
+            // Set the cardCzar to null
+            setCardCzar(null);
+
+            // Set the game winner
+            setGameWinner(winner);
+
+            // Trigger leaderboard highlight
+            setHighlightLeaderboard(true);
+
+            // Remove highlight after five seconds and reset game winner
+            setTimeout(() => {
+                setHighlightLeaderboard(false);
+                setGameWinner(null);
+            }, 5000);
+
+            if (timerIntervalRef.current) {
+                clearInterval(timerIntervalRef.current);
+                timerIntervalRef.current = null;
+            }
         });
 
         return () => {
@@ -230,7 +248,15 @@ const CardGamePage: React.FC = () => {
                 timerIntervalRef.current = null;
             }
         };
-    }, [socket]);
+    }, [socket, lobbyId]);
+
+    const handleSelectLobby = (selectedLobbyId: string) => {
+        setLobbyId(selectedLobbyId);
+
+        if (socket) {
+            socket.emit('joinLobby', { lobbyId: selectedLobbyId });
+        }
+    };
 
     const startTimer = () => {
         // Clear any existing interval
@@ -285,7 +311,7 @@ const CardGamePage: React.FC = () => {
     const handleStartNewRound = () => {
         if (socket && host === socket.id) {
             const newScoreLimit = gameSettings.pointsToWin;
-            socket.emit('startNewRound', { newScoreLimit });
+            socket.emit('startNewRound', { newScoreLimit, lobbyId });
             setCardCzar(null);
             setGameOver(false);
         }
@@ -297,9 +323,13 @@ const CardGamePage: React.FC = () => {
             selectedCards.length === (blackCard?.blanks || 1) &&
             cardCzar?.id !== socket.id &&
             !hasSubmitted &&
-            !submissionTimeEnded
+            !submissionTimeEnded &&
+            lobbyId
         ) {
-            socket.emit('submitWhiteCards', selectedCards);
+            socket.emit('submitWhiteCards', {
+                submittedCards: selectedCards,
+                lobbyId,
+            });
             setSelectedCards([]);
             setHasSubmitted(true);
             setMyWhiteCards((prevCards) =>
@@ -310,126 +340,153 @@ const CardGamePage: React.FC = () => {
         }
     };
 
-    const handleSelectWinner = (submission: {
-        user: User;
-        cards: { text: string }[];
-    }) => {
+    const handleSelectWinner = (submission: Submission) => {
         if (socket && cardCzar?.id === socket.id && !hasSelectedWinner) {
-            const confirmSelection = window.confirm(
-                'Are you sure you want to select this submission as the winner?'
-            );
-            if (confirmSelection) {
-                socket.emit('selectWinner', submission);
-                setHasSelectedWinner(true);
-            }
+            setTentativeWinningSubmission(submission);
+        }
+    };
+
+    const confirmWinnerSelection = () => {
+        if (socket && tentativeWinningSubmission && lobbyId) {
+            socket.emit('selectWinner', {
+                winningSubmission: tentativeWinningSubmission,
+                lobbyId,
+            });
+            setHasSelectedWinner(true);
+            setTentativeWinningSubmission(null);
         }
     };
 
     const handleSetNickname = () => {
         if (socket && nickname) {
-            socket.emit('setNickname', nickname);
+            socket.emit('setNickname', { nickname, lobbyId });
         }
     };
 
     const handleBecomeAdmin = () => {
         if (socket && host === socket.id) {
-            socket.emit('setNickname', nickname);
-            socket.emit('becomeAdmin');
+            socket.emit('setNickname', { nickname, lobbyId });
+            socket.emit('becomeAdmin', { lobbyId });
         }
     };
 
     const handleStartGame = () => {
-        if (socket && host === socket.id && adminSet) {
-            socket.emit('startGame');
+        if (socket && host === socket.id && adminSet && lobbyId) {
+            socket.emit('startGame', { lobbyId });
         }
     };
+
+    const isInLobby = users.some(
+        (user) => user.id === socket?.id && user.nickname
+    );
 
     return (
         socket && (
             <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-                <div className="bg-white p-8 rounded-lg shadow-md max-w-3xl w-full">
+                <div className="bg-white p-4 sm:p-8 rounded-lg shadow-md max-w-3xl w-full overflow-y-auto">
                     <h1 className="text-3xl font-bold mb-4 text-center text-black">
                         CardsClone
                     </h1>
-                    <NicknameInput
-                        nickname={nickname}
-                        setNickname={setNickname}
-                        handleSetNickname={handleSetNickname}
-                        socket={socket}
-                        gameStarted={gameStarted}
-                        gameOver={gameOver}
-                        host={host}
-                    />
-                    <AdminControls
-                        socket={socket}
-                        host={host}
-                        nickname={nickname}
-                        adminSet={adminSet}
-                        gameStarted={gameStarted}
-                        gameOver={gameOver}
-                        winningSubmission={winningSubmission}
-                        handleBecomeAdmin={handleBecomeAdmin}
-                        handleStartGame={handleStartGame}
-                        handleStartNewRound={handleStartNewRound}
-                        gameSettings={gameSettings}
-                        setGameSettings={setGameSettings}
-                    />
-                    <Leaderboard
-                        users={users}
-                        cardCzar={cardCzar}
-                        scoreLimit={scoreLimit}
-                    />
-                    {gameStarted && !gameOver && (
+                    {!lobbyId ? (
+                        <LobbySelection onSelectLobby={handleSelectLobby} />
+                    ) : (
                         <>
-                            {/* Display Countdown Timer */}
-                            <div className="text-center text-lg font-semibold text-red-500 mb-4">
-                                {timeLeft !== null && timeLeft > 0 && (
-                                    <p>
-                                        Time left to submit: {timeLeft} seconds
-                                    </p>
-                                )}
-                                {submissionTimeEnded && (
-                                    <p>Submission time has ended.</p>
-                                )}
-                            </div>
-                            <GameBoard
-                                blackCard={blackCard}
-                                submittedCards={submittedCards}
-                                cardCzar={cardCzar}
+                            <NicknameInput
+                                nickname={nickname}
+                                setNickname={setNickname}
+                                handleSetNickname={handleSetNickname}
                                 socket={socket}
-                                handleSelectWinner={handleSelectWinner}
+                                gameStarted={gameStarted}
+                                gameOver={gameOver}
+                                host={host}
+                                isInLobby={isInLobby}
+                            />
+                            <AdminControls
+                                socket={socket}
+                                host={host}
+                                nickname={nickname}
+                                adminSet={adminSet}
+                                gameStarted={gameStarted}
+                                gameOver={gameOver}
                                 winningSubmission={winningSubmission}
-                                hasSelectedWinner={hasSelectedWinner}
-                                allSubmissionsReceived={allSubmissionsReceived}
-                                totalPlayers={users.length}
-                                currentSubmissionsCount={
-                                    currentSubmissionsCount
-                                }
-                                expectedSubmissionsCount={
-                                    expectedSubmissionsCount
-                                }
+                                handleBecomeAdmin={handleBecomeAdmin}
+                                handleStartGame={handleStartGame}
+                                handleStartNewRound={handleStartNewRound}
+                                gameSettings={gameSettings}
+                                setGameSettings={setGameSettings}
                             />
-                        </>
-                    )}
-                    {gameStarted && !gameOver && (
-                        <>
-                            <WhiteCardsHand
-                                myWhiteCards={myWhiteCards}
-                                selectedCards={selectedCards}
-                                handleSelectCard={handleSelectCard}
-                                hasSubmitted={hasSubmitted}
+                            <Leaderboard
+                                users={users}
                                 cardCzar={cardCzar}
-                                socket={socket}
-                                submissionTimeEnded={submissionTimeEnded}
+                                scoreLimit={scoreLimit}
+                                highlight={highlightLeaderboard}
+                                gameWinner={gameWinner}
                             />
-                            <SubmitButton
-                                selectedCards={selectedCards}
-                                blackCard={blackCard}
-                                handleSubmitCards={handleSubmitCards}
-                                hasSubmitted={hasSubmitted}
-                                cardCzar={cardCzar}
-                                socket={socket}
-                            />
+
+                            {gameStarted && !gameOver && (
+                                <>
+                                    {/* Display Countdown Timer */}
+                                    <div className="text-center text-lg font-semibold text-red-500 mb-4">
+                                        {timeLeft !== null && timeLeft > 0 && (
+                                            <p>
+                                                Time left to submit: {timeLeft}{' '}
+                                                seconds
+                                            </p>
+                                        )}
+                                        {submissionTimeEnded && (
+                                            <p>Submission time has ended.</p>
+                                        )}
+                                    </div>
+                                    <GameBoard
+                                        blackCard={blackCard}
+                                        submittedCards={submittedCards}
+                                        cardCzar={cardCzar}
+                                        socket={socket}
+                                        handleSelectWinner={handleSelectWinner}
+                                        winningSubmission={winningSubmission}
+                                        hasSelectedWinner={hasSelectedWinner}
+                                        allSubmissionsReceived={
+                                            allSubmissionsReceived
+                                        }
+                                        totalPlayers={users.length}
+                                        currentSubmissionsCount={
+                                            currentSubmissionsCount
+                                        }
+                                        expectedSubmissionsCount={
+                                            expectedSubmissionsCount
+                                        }
+                                        tentativeWinningSubmission={
+                                            tentativeWinningSubmission
+                                        }
+                                        confirmWinnerSelection={
+                                            confirmWinnerSelection
+                                        }
+                                    />
+                                </>
+                            )}
+                            {gameStarted && !gameOver && (
+                                <>
+                                    <WhiteCardsHand
+                                        myWhiteCards={myWhiteCards}
+                                        selectedCards={selectedCards}
+                                        handleSelectCard={handleSelectCard}
+                                        hasSubmitted={hasSubmitted}
+                                        cardCzar={cardCzar}
+                                        socket={socket}
+                                        submissionTimeEnded={
+                                            submissionTimeEnded
+                                        }
+                                    />
+                                    <SubmitButton
+                                        selectedCards={selectedCards}
+                                        blackCard={blackCard}
+                                        handleSubmitCards={handleSubmitCards}
+                                        hasSubmitted={hasSubmitted}
+                                        cardCzar={cardCzar}
+                                        socket={socket}
+                                    />
+                                </>
+                            )}
                         </>
                     )}
                 </div>

@@ -22,5 +22,6 @@ module.exports = {
         ANNOUNCE_TOP_PLAYERS: 'announceTopPlayers',
         NEXT_ROUND: 'nextRound',
         PLAYER_SUBMITTED_CARDS: 'playerSubmittedCards',
+        JOIN_LOBBY: 'joinLobby',
     },
 };

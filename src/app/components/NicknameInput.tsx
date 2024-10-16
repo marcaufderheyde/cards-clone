@@ -9,6 +9,7 @@ interface NicknameInputProps {
     gameStarted: boolean;
     gameOver: boolean;
     host: string | null;
+    isInLobby: boolean;
 }
 
 const NicknameInput: React.FC<NicknameInputProps> = ({
@@ -19,6 +20,7 @@ const NicknameInput: React.FC<NicknameInputProps> = ({
     gameStarted,
     gameOver,
     host,
+    isInLobby,
 }) => {
     return (
         <>
@@ -44,12 +46,12 @@ const NicknameInput: React.FC<NicknameInputProps> = ({
                 <div className="flex justify-center mb-4">
                     <button
                         onClick={handleSetNickname}
-                        className={`px-4 py-2 font-semibold text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600 focus:outline-none ${
-                            !nickname ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                        disabled={!nickname}
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2"
+                        disabled={gameStarted || gameOver || !nickname}
                     >
-                        Set Username and Join Lobby
+                        {isInLobby
+                            ? 'Set Username'
+                            : 'Set Username and Join Lobby'}
                     </button>
                 </div>
             )}
