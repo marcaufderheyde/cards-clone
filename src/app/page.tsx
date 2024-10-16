@@ -1,33 +1,20 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { DefaultEventsMap } from 'socket.io';
-import io, { Socket } from 'socket.io-client';
-
-interface GameSettings {
-    pointsToWin: number;
-}
-
-interface User {
-    id: string;
-    nickname?: string;
-    whiteCards?: { text: string }[];
-    points: number;
-}
-
-interface Submission {
-    user: User;
-    cards: { text: string; isCustom?: boolean; isBlank?: boolean }[];
-}
-
-interface WhiteCard {
-    text: string;
-    isBlank?: boolean;
-}
+import React, { useEffect, useState, useRef } from 'react';
+import NicknameInput from './components/NicknameInput';
+import AdminControls from './components/AdminControls';
+import Leaderboard from './components/Leaderboard';
+import GameBoard from './components/GameBoard';
+import WhiteCardsHand from './components/WhiteCardsHand';
+import SubmitButton from './components/SubmitButton';
+import useSocket from './hooks/useSocket';
+import { GameSettings, User, WhiteCard, Submission } from '@/types';
 
 const CardGamePage: React.FC = () => {
-    const [socket, setSocket] =
-        useState<Socket<DefaultEventsMap, DefaultEventsMap>>();
+    // Socket initialization
+    const socket = useSocket();
+
+    // State variables
     const [nickname, setNickname] = useState('');
     const [gameSettings, setGameSettings] = useState<GameSettings>({
         pointsToWin: 5,
@@ -41,50 +28,64 @@ const CardGamePage: React.FC = () => {
         blanks: number;
     } | null>(null);
 
+    const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
     const [myWhiteCards, setMyWhiteCards] = useState<WhiteCard[]>([]);
     const [selectedCards, setSelectedCards] = useState<
         { text: string; isBlank?: boolean }[]
     >([]);
     const [cardCzar, setCardCzar] = useState<User | null>(null);
     const [submittedCards, setSubmittedCards] = useState<Submission[]>([]);
+    const [currentSubmissionsCount, setCurrentSubmissionsCount] = useState(0);
+    const [expectedSubmissionsCount, setExpectedSubmissionsCount] = useState(0);
+
+    const [allSubmissionsReceived, setAllSubmissionsReceived] = useState(false);
+
     const [winningSubmission, setWinningSubmission] =
         useState<Submission | null>(null);
     const [scoreLimit, setScoreLimit] = useState<number>(5);
+    const [timeLeft, setTimeLeft] = useState<number | null>(null);
+    const [submissionTimeEnded, setSubmissionTimeEnded] = useState(false);
+
     const [gameOver, setGameOver] = useState(false);
     const [hasSubmitted, setHasSubmitted] = useState(false);
-    // Add this state variable
     const [hasSelectedWinner, setHasSelectedWinner] = useState(false);
 
     useEffect(() => {
-        const newSocket = io();
-        setSocket(newSocket);
+        if (!socket) return;
 
-        newSocket.on('connect', () => {
-            console.log('Connected to server with ID:', newSocket.id);
+        socket.on('connect', () => {
+            console.log('Connected to server with ID:', socket.id);
         });
 
-        newSocket.on('adminReset', () => {
+        socket.on('adminReset', () => {
             setAdminSet(false);
         });
 
-        newSocket.on('updateUserList', (updatedUsers: User[]) => {
+        socket.on('updateUserList', (updatedUsers: User[]) => {
             setUsers(updatedUsers);
         });
 
-        newSocket.on('updateHost', (hostId: string) => {
+        socket.on('updateHost', (hostId: string) => {
             setHost(hostId);
-            if (hostId !== newSocket.id) {
+            if (hostId !== socket.id) {
                 setAdminSet(false); // Reset adminSet if you're not the host
             }
         });
 
-        newSocket.on('adminSet', () => {
+        socket.on('adminSet', () => {
             setAdminSet(true);
         });
 
-        newSocket.on(
+        socket.on(
             'gameStarted',
-            ({ blackCard, users, cardCzar, scoreLimit }) => {
+            ({
+                blackCard,
+                users,
+                cardCzar,
+                scoreLimit,
+                expectedSubmissions,
+            }) => {
                 setGameStarted(true);
                 setBlackCard(blackCard);
                 setCardCzar(cardCzar);
@@ -94,26 +95,60 @@ const CardGamePage: React.FC = () => {
                 setSubmittedCards([]);
                 setUsers(users);
 
-                const me = users.find((user: User) => user.id === newSocket.id);
+                const me = users.find((user: User) => user.id === socket.id);
                 if (me) {
                     setMyWhiteCards(me.whiteCards || []);
                 }
+                setTimeLeft(75); // 75 seconds
+                setSubmissionTimeEnded(false);
+
+                startTimer();
+
+                // Reset submission counts
+                setCurrentSubmissionsCount(0);
+                setExpectedSubmissionsCount(expectedSubmissions); // Now properly set
             }
         );
 
-        newSocket.on('updateHand', (newHand) => {
+        socket.on('updateHand', (newHand) => {
             setMyWhiteCards(newHand);
         });
 
-        newSocket.on('updateScoreLimit', (newLimit) => {
+        socket.on('updateScoreLimit', (newLimit) => {
             setScoreLimit(newLimit);
         });
 
-        newSocket.on('allCardsSubmitted', ({ submissions }) => {
+        socket.on(
+            'playerSubmittedCards',
+            ({ totalSubmissions, expectedSubmissions }) => {
+                setCurrentSubmissionsCount(totalSubmissions);
+                setExpectedSubmissionsCount(expectedSubmissions);
+            }
+        );
+
+        socket.on('allCardsSubmitted', ({ submissions }) => {
             setSubmittedCards(submissions);
+            setAllSubmissionsReceived(true);
+            setCurrentSubmissionsCount(submissions.length);
+
+            // Clear the timer
+            if (timerIntervalRef.current) {
+                clearInterval(timerIntervalRef.current);
+                timerIntervalRef.current = null;
+            }
         });
 
-        newSocket.on('winnerSelected', ({ winner, winningSubmission }) => {
+        socket.on('submissionTimeEnded', () => {
+            setSubmissionTimeEnded(true);
+            setTimeLeft(0);
+
+            if (timerIntervalRef.current) {
+                clearInterval(timerIntervalRef.current);
+                timerIntervalRef.current = null;
+            }
+        });
+
+        socket.on('winnerSelected', ({ winner, winningSubmission }) => {
             setWinningSubmission(winningSubmission);
             setUsers((prevUsers) =>
                 prevUsers.map((user) =>
@@ -127,22 +162,35 @@ const CardGamePage: React.FC = () => {
             }, 5000);
         });
 
-        newSocket.on('nextRound', ({ blackCard, cardCzar, users }) => {
-            setBlackCard(blackCard);
-            setCardCzar(cardCzar);
-            setUsers(users);
-            setSubmittedCards([]);
-            setSelectedCards([]);
-            setHasSubmitted(false);
-            setHasSelectedWinner(false);
+        socket.on(
+            'nextRound',
+            ({ blackCard, cardCzar, users, expectedSubmissions }) => {
+                setBlackCard(blackCard);
+                setCardCzar(cardCzar);
+                setUsers(users);
+                setSubmittedCards([]);
+                setSelectedCards([]);
+                setHasSubmitted(false);
+                setHasSelectedWinner(false);
+                setAllSubmissionsReceived(false);
 
-            const me = users.find((user: User) => user.id === newSocket.id);
-            if (me) {
-                setMyWhiteCards(me.whiteCards || []);
+                const me = users.find((user: User) => user.id === socket.id);
+                if (me) {
+                    setMyWhiteCards(me.whiteCards || []);
+                }
+
+                setTimeLeft(75); // 75 seconds
+                setSubmissionTimeEnded(false);
+
+                startTimer();
+
+                // Reset submission counts
+                setCurrentSubmissionsCount(0);
+                setExpectedSubmissionsCount(expectedSubmissions); // Now properly set
             }
-        });
+        );
 
-        newSocket.on('announceTopPlayers', (topPlayers: User[]) => {
+        socket.on('announceTopPlayers', (topPlayers: User[]) => {
             const playerNames = topPlayers
                 .map(
                     (player) =>
@@ -155,15 +203,56 @@ const CardGamePage: React.FC = () => {
                 alert(`Game Over! Top 3 Players:\n${playerNames}`);
             }, 1000);
             setGameOver(true);
-            setGameStarted(false); // Add this line
-            setSubmittedCards([]); // Clear submitted cards
-            setSelectedCards([]); // Reset selected cards
+            setGameStarted(false);
+            setSubmittedCards([]);
+            setSelectedCards([]);
+            setCurrentSubmissionsCount(0);
+            setExpectedSubmissionsCount(0); // Reset counts
         });
 
         return () => {
-            newSocket.disconnect();
+            socket.off('connect');
+            socket.off('adminReset');
+            socket.off('updateUserList');
+            socket.off('updateHost');
+            socket.off('adminSet');
+            socket.off('gameStarted');
+            socket.off('updateHand');
+            socket.off('updateScoreLimit');
+            socket.off('allCardsSubmitted');
+            socket.off('winnerSelected');
+            socket.off('nextRound');
+            socket.off('announceTopPlayers');
+            socket.off('submissionTimeEnded');
+            socket.off('playerSubmittedCards');
+            if (timerIntervalRef.current) {
+                clearInterval(timerIntervalRef.current);
+                timerIntervalRef.current = null;
+            }
         };
-    }, []);
+    }, [socket]);
+
+    const startTimer = () => {
+        // Clear any existing interval
+        if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+        }
+
+        let time = 75;
+        setTimeLeft(time);
+
+        timerIntervalRef.current = setInterval(() => {
+            time -= 1;
+            setTimeLeft(time);
+
+            if (time <= 0) {
+                if (timerIntervalRef.current) {
+                    clearInterval(timerIntervalRef.current);
+                    timerIntervalRef.current = null;
+                }
+            }
+        }, 1000);
+    };
 
     const handleSelectCard = (card: WhiteCard) => {
         if (socket && cardCzar?.id !== socket.id && !hasSubmitted) {
@@ -207,7 +296,8 @@ const CardGamePage: React.FC = () => {
             socket &&
             selectedCards.length === (blackCard?.blanks || 1) &&
             cardCzar?.id !== socket.id &&
-            !hasSubmitted
+            !hasSubmitted &&
+            !submissionTimeEnded
         ) {
             socket.emit('submitWhiteCards', selectedCards);
             setSelectedCards([]);
@@ -255,274 +345,96 @@ const CardGamePage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-md max-w-3xl w-full">
-                {' '}
-                {/* Increase max width */}
-                <h1 className="text-3xl font-bold mb-4 text-center text-black">
-                    CardsClone
-                </h1>
-                {/* Nickname Input */}
-                <div className="mb-4">
-                    <label
-                        htmlFor="nickname"
-                        className="block text-sm font-medium text-gray-700"
-                    >
-                        Enter Your Nickname
-                    </label>
-                    <input
-                        id="nickname"
-                        type="text"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
-                        placeholder="Your Nickname"
-                        value={nickname}
-                        onChange={(e) => setNickname(e.target.value)}
+        socket && (
+            <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+                <div className="bg-white p-8 rounded-lg shadow-md max-w-3xl w-full">
+                    <h1 className="text-3xl font-bold mb-4 text-center text-black">
+                        CardsClone
+                    </h1>
+                    <NicknameInput
+                        nickname={nickname}
+                        setNickname={setNickname}
+                        handleSetNickname={handleSetNickname}
+                        socket={socket}
+                        gameStarted={gameStarted}
+                        gameOver={gameOver}
+                        host={host}
                     />
-                </div>
-                {/* Admin/Start Game Logic */}
-                {socket?.id === host ? (
-                    <div className="flex justify-center mb-4">
-                        {!adminSet ? (
-                            <button
-                                onClick={handleBecomeAdmin}
-                                className={`px-4 py-2 font-semibold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none ${
-                                    !nickname
-                                        ? 'opacity-50 cursor-not-allowed'
-                                        : ''
-                                }`}
-                                disabled={!nickname || gameStarted}
-                            >
-                                Become Admin
-                            </button>
-                        ) : (
-                            <div className="flex justify-center mb-4">
-                                {!gameStarted &&
-                                    !winningSubmission &&
-                                    !gameOver && (
-                                        <button
-                                            onClick={handleStartGame}
-                                            className={`px-4 py-2 font-semibold text-white bg-red-500 rounded-lg shadow-md hover:bg-red-600 focus:outline-none`}
-                                            disabled={gameStarted}
-                                        >
-                                            Start Game
-                                        </button>
-                                    )}
-                                {gameOver && (
-                                    <button
-                                        onClick={handleStartNewRound}
-                                        className="px-4 py-2 font-semibold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"
-                                    >
-                                        Start New Round
-                                    </button>
+                    <AdminControls
+                        socket={socket}
+                        host={host}
+                        nickname={nickname}
+                        adminSet={adminSet}
+                        gameStarted={gameStarted}
+                        gameOver={gameOver}
+                        winningSubmission={winningSubmission}
+                        handleBecomeAdmin={handleBecomeAdmin}
+                        handleStartGame={handleStartGame}
+                        handleStartNewRound={handleStartNewRound}
+                        gameSettings={gameSettings}
+                        setGameSettings={setGameSettings}
+                    />
+                    <Leaderboard
+                        users={users}
+                        cardCzar={cardCzar}
+                        scoreLimit={scoreLimit}
+                    />
+                    {gameStarted && !gameOver && (
+                        <>
+                            {/* Display Countdown Timer */}
+                            <div className="text-center text-lg font-semibold text-red-500 mb-4">
+                                {timeLeft !== null && timeLeft > 0 && (
+                                    <p>
+                                        Time left to submit: {timeLeft} seconds
+                                    </p>
+                                )}
+                                {submissionTimeEnded && (
+                                    <p>Submission time has ended.</p>
                                 )}
                             </div>
-                        )}
-                    </div>
-                ) : (
-                    (!gameStarted || gameOver) && (
-                        <div className="flex justify-center mb-4">
-                            <button
-                                onClick={handleSetNickname}
-                                className={`px-4 py-2 font-semibold text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600 focus:outline-none ${
-                                    !nickname
-                                        ? 'opacity-50 cursor-not-allowed'
-                                        : ''
-                                }`}
-                                disabled={!nickname}
-                            >
-                                Set Username and Join Lobby
-                            </button>
-                        </div>
-                    )
-                )}
-                {socket?.id === host && (!gameStarted || gameOver) && (
-                    <div className="flex flex-col items-center mb-4">
-                        <label
-                            htmlFor="scoreLimit"
-                            className="block text-sm font-medium text-gray-700 mb-2"
-                        >
-                            Set Score Limit
-                        </label>
-                        <input
-                            id="scoreLimit"
-                            type="number"
-                            className="mt-1 block w-20 text-center px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
-                            value={gameSettings.pointsToWin}
-                            onChange={(e) =>
-                                setGameSettings({
-                                    ...gameSettings,
-                                    pointsToWin: Number(e.target.value),
-                                })
-                            }
-                        />
-                        <button
-                            onClick={() =>
-                                socket.emit(
-                                    'setScoreLimit',
-                                    gameSettings.pointsToWin
-                                )
-                            }
-                            className="mt-4 px-4 py-2 font-semibold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"
-                        >
-                            Set Score Limit
-                        </button>
-                    </div>
-                )}
-                <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-4 text-black">
-                        Leaderboard
-                    </h2>
-                    <div className="flex flex-col gap-2">
-                        {users.map((user) => (
-                            <div
-                                key={user.id}
-                                className={`flex items-center justify-between p-2 rounded-lg shadow-sm text-black ${
-                                    user.id === cardCzar?.id
-                                        ? 'bg-yellow-200 font-bold'
-                                        : 'bg-gray-200'
-                                }`}
-                            >
-                                <span>
-                                    {user.nickname || 'Anonymous'}
-                                    {user.id === cardCzar?.id && ' (Card Czar)'}
-                                </span>
-                                <span className="text-sm">
-                                    Points: {user.points}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                    <p className="text-sm text-center mt-4 text-black">
-                        Score Limit: {scoreLimit}
-                    </p>
+                            <GameBoard
+                                blackCard={blackCard}
+                                submittedCards={submittedCards}
+                                cardCzar={cardCzar}
+                                socket={socket}
+                                handleSelectWinner={handleSelectWinner}
+                                winningSubmission={winningSubmission}
+                                hasSelectedWinner={hasSelectedWinner}
+                                allSubmissionsReceived={allSubmissionsReceived}
+                                totalPlayers={users.length}
+                                currentSubmissionsCount={
+                                    currentSubmissionsCount
+                                }
+                                expectedSubmissionsCount={
+                                    expectedSubmissionsCount
+                                }
+                            />
+                        </>
+                    )}
+                    {gameStarted && !gameOver && (
+                        <>
+                            <WhiteCardsHand
+                                myWhiteCards={myWhiteCards}
+                                selectedCards={selectedCards}
+                                handleSelectCard={handleSelectCard}
+                                hasSubmitted={hasSubmitted}
+                                cardCzar={cardCzar}
+                                socket={socket}
+                                submissionTimeEnded={submissionTimeEnded}
+                            />
+                            <SubmitButton
+                                selectedCards={selectedCards}
+                                blackCard={blackCard}
+                                handleSubmitCards={handleSubmitCards}
+                                hasSubmitted={hasSubmitted}
+                                cardCzar={cardCzar}
+                                socket={socket}
+                            />
+                        </>
+                    )}
                 </div>
-                {gameStarted && !gameOver && (
-                    <div>
-                        <div className="text-center text-lg font-semibold text-green-500 mb-4">
-                            {/* Styled Black Card */}
-                            <div className="bg-black text-white p-6 rounded-lg shadow-md">
-                                {blackCard?.text}
-                            </div>
-
-                            {/* Submitted Cards */}
-                            {submittedCards.length > 0 && (
-                                <div className="mt-4">
-                                    <h3 className="text-lg font-semibold mb-4 text-center">
-                                        Submitted Cards
-                                    </h3>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {submittedCards.map(
-                                            ({ cards, user }, index) => (
-                                                <div
-                                                    key={index}
-                                                    onClick={() =>
-                                                        socket &&
-                                                        cardCzar?.id ===
-                                                            socket.id &&
-                                                        !hasSelectedWinner &&
-                                                        handleSelectWinner({
-                                                            user,
-                                                            cards,
-                                                        })
-                                                    }
-                                                    className={`bg-white text-black p-4 rounded-lg shadow-md ${
-                                                        socket &&
-                                                        cardCzar?.id ===
-                                                            socket.id &&
-                                                        !hasSelectedWinner
-                                                            ? 'cursor-pointer'
-                                                            : ''
-                                                    } ${
-                                                        winningSubmission &&
-                                                        winningSubmission.user
-                                                            .id === user.id
-                                                            ? 'border-2 border-yellow-500'
-                                                            : ''
-                                                    }`}
-                                                >
-                                                    {cards.map((card, idx) => (
-                                                        <p
-                                                            key={idx}
-                                                            className="mb-2 last:mb-0"
-                                                        >
-                                                            {card.text}
-                                                        </p>
-                                                    ))}
-                                                </div>
-                                            )
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Show the Card Czar */}
-                            <p className="text-sm mt-4">
-                                Card Czar:{' '}
-                                {cardCzar?.nickname
-                                    ? cardCzar.nickname
-                                    : 'Unknown'}
-                            </p>
-                        </div>
-
-                        {/* White Cards */}
-                        <div className="grid grid-cols-5 gap-2 mt-4">
-                            {myWhiteCards.map((card, index) => {
-                                const isSelected = selectedCards.some(
-                                    (c) => c.text === card.text
-                                );
-                                return (
-                                    <div
-                                        key={index}
-                                        onClick={() =>
-                                            !hasSubmitted &&
-                                            handleSelectCard(card)
-                                        }
-                                        className={`bg-white text-black text-center p-2 rounded-lg shadow-md ${
-                                            !hasSubmitted &&
-                                            socket &&
-                                            cardCzar?.id !== socket.id
-                                                ? 'cursor-pointer'
-                                                : 'cursor-not-allowed'
-                                        } ${
-                                            isSelected
-                                                ? 'border-2 border-green-500'
-                                                : ''
-                                        } ${
-                                            (socket &&
-                                                cardCzar?.id === socket.id) ||
-                                            hasSubmitted
-                                                ? 'opacity-50'
-                                                : ''
-                                        }`}
-                                    >
-                                        {card.isBlank ? (
-                                            <em>Blank Card</em>
-                                        ) : (
-                                            card.text
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Submit Button */}
-                        {selectedCards.length === (blackCard?.blanks || 1) &&
-                            socket &&
-                            cardCzar?.id !== socket.id &&
-                            !hasSubmitted && (
-                                <div className="flex justify-center mt-4">
-                                    <button
-                                        onClick={handleSubmitCards}
-                                        className="px-4 py-2 font-semibold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"
-                                    >
-                                        Submit Cards
-                                    </button>
-                                </div>
-                            )}
-                    </div>
-                )}
             </div>
-        </div>
+        )
     );
 };
 
