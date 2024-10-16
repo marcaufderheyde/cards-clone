@@ -199,7 +199,7 @@ const CardGamePage: React.FC = () => {
             }
         );
 
-        socket.on('announceTopPlayers', ({ topPlayers, winner }) => {
+        socket.on('announceTopPlayers', ({ winner }) => {
             setGameOver(true);
             setGameStarted(false);
             setSubmittedCards([]);
