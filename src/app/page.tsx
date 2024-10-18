@@ -391,6 +391,22 @@ const CardGamePage: React.FC = () => {
                         <LobbySelection onSelectLobby={handleSelectLobby} />
                     ) : (
                         <>
+                            <button
+                                className="top-4 left-4 bg-blue-500 text-white px-3 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                onClick={() => setLobbyId(null)}
+                            >
+                                {/* You can replace the text with an icon if desired */}
+                                Back
+                            </button>
+                            <h2 className="text-2xl font-bold mb-4 text-center text-black">
+                                Lobby: {lobbyId.split('lobby')[1]}
+                            </h2>
+                            <div className="text-center text-lg font-semibold text-red-500 mb-4">
+                                <p>
+                                    DO NOT REFRESH THE PAGE OR LOCK YOUR PHONE
+                                    OR YOU WILL BE KICKED FROM THE LOBBY
+                                </p>
+                            </div>
                             <NicknameInput
                                 nickname={nickname}
                                 setNickname={setNickname}

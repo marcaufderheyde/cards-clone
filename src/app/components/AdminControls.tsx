@@ -86,7 +86,7 @@ const AdminControls: React.FC<AdminControlsProps> = ({
                     )}
                 </div>
             ) : null}
-            {adminSet && !gameStarted && !gameOver && (
+            {adminSet && socket?.id === host && !gameStarted && !gameOver && (
                 <div className="flex flex-col items-center mb-4 text-black">
                     <label htmlFor="scoreLimit">Score Limit:</label>
                     <input
